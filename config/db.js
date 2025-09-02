@@ -1,18 +1,21 @@
-const mongoose  = require("mongoose")
+const mongoose = require("mongoose");
+const { dbConfig } = require("./constant");
 
-const URI = "mongodb://127.0.0.1:27017/Booking_panel";
-// const URI ="mongodb+srv://pariharpratham12:n9D4UiSirs2X6uQa@cluster0.ltnsz.mongodb.net/Admin_panel?retryWrites=true&w=majority&appName=Cluster0"
+const connectDB = async () => {
+  try {
+    const conn = await mongoose.connect(dbConfig?.url, {
+      dbName: dbConfig?.dbName,
+      useNewUrlParser: true,
+      useUnifiedTopology: true,
+    });
 
-const connectDB = async(req,res)=>{
-    try {
-    await mongoose.connect(URI)
-       console.log("database connect") 
-    } catch (error) {
-        console.log("database not connect")
-    }
-}
+    console.log(`✅ MongoDB Connected: ${conn.connection.host}`);
+    console.log(`✅ MongoDB Connected to dbName: ${dbConfig?.dbName}`);
+    return conn;
+  } catch (error) {
+    console.error(`❌ Error connecting to MongoDB: ${error.message}`);
+    process.exit(1);
+  }
+};
 
 module.exports = connectDB;
-
-
-

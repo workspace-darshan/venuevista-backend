@@ -1,7 +1,7 @@
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
 
-const protect = async (req, res, next) => {
+const isAuth = async (req, res, next) => {
   let token = req.headers.authorization;
 
   if (token && token.startsWith('Bearer')) {
@@ -17,20 +17,4 @@ const protect = async (req, res, next) => {
   }
 };
 
-const isAdmin = (req, res, next) => {
-  if (req.user && req.user.userType === 'Super-Admin') {
-    next();
-  } else {
-    res.status(403).json({ message: 'Access denied' });
-  }
-};
-
-const isProvider = (req, res, next) => {
-  if (req.user && req.user.userType === 'Provider') {
-    next();
-  } else {
-    res.status(403).json({ message: 'Access denied' });
-  }
-};
-
-module.exports = { protect, isAdmin, isProvider };
+module.exports = isAuth;

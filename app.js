@@ -1,30 +1,73 @@
-// require("dotenv").config({ path: "./.env" });
-// const express = require("express");
-// const app = express();
-// const Router = require("./Router/authRoutes.js");
-// const connectDB = require("./Utils/db.js");
-
-// app.use(express.json());
-// app.use("/api", Router);
-// // app.use(errorMiddleware);
-// connectDB().then(() => {
-//   app.listen(3000, () => {
-//     console.log(`app is runin 3000`);
-//   });
-// });
-
-const express = require("express");
-const dotenv = require("dotenv");
+require("dotenv").config();
+var createError = require('http-errors');
+var express = require('express');
+var path = require('path');
+const helmet = require("helmet");
+var cors = require('cors')
+var cookieParser = require('cookie-parser');
+var logger = require('morgan');
+var indexRouter = require('./routes/index');
 const connectDB = require("./config/db");
-const authRoutes = require("./allRoutes/authRoutes");
 
-dotenv.config();
+const apiRoutes = require("./routes");
+const { WEBSITE_URL } = require("./config/constant");
+
+var app = express();
+
+// Middleware
+app.use(helmet({
+    crossOriginEmbedderPolicy: false
+}));
+
+// view engine setup
+app.set('views', path.join(__dirname, 'views'));
+app.set('view engine', 'ejs');
+
+app.use(cors({
+    origin: "*",
+    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization']
+}));
+app.use(logger('dev'));
+app.use(express.json());
+app.use(express.urlencoded({ extended: false }));
+app.use(cookieParser());
+app.use('/api', indexRouter);
+app.use("/uploads", express.static(path.join(__dirname, "uploads")));
+app.use('/uploads', (req, res, next) => {
+    res.header('Cross-Origin-Resource-Policy', 'cross-origin');
+    // res.header('Access-Control-Allow-Origin', WEBSITE_URL);
+    // res.header('Access-Control-Allow-Credentials', 'true');
+    next();
+});
+
+// MongoDB & Socket
 connectDB();
 
-const app = express();
-app.use(express.json());
+// Routes
+// app.use("/api", apiRoutes);
 
-app.use("/api", authRoutes);
+app.get("/", (req, res) => {
+    res.send("Express API running");
+});
+
+// catch 404 and forward to error handler
+app.use(function (req, res, next) {
+    next(createError(404));
+});
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, console.log(`Server running on port ${PORT}`));
+
+// error handler
+app.use(function (err, req, res, next) {
+    // set locals, only providing error in development
+    res.locals.message = err.message;
+    res.locals.error = req.app.get('env') === 'development' ? err : {};
+
+    // render the error page
+    res.status(err.status || 500);
+    res.render('error');
+});
+
+module.exports = app;
