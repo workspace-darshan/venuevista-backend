@@ -3,7 +3,7 @@ const bcrypt = require("bcryptjs");
 const jwt = require('jsonwebtoken');
 const secretkey = require("../../config/constant").secretkey;
 
-const userSchema = new mongoose.Schema(
+const providerSchema = new mongoose.Schema(
     {
         firstName: { type: String, required: true },
         middleName: { type: String, required: true },
@@ -11,14 +11,8 @@ const userSchema = new mongoose.Schema(
         email: { type: String, unique: true, required: true },
         phone: { type: String, unique: true, required: true },
         password: { type: String, required: true },
-        userType: {
-            type: String,
-            enum: ["User", "Provider", "Super-Admin"],
-            required: true,
-        },
         isApproved: { type: Boolean, default: false },
-
-        // Fields specific to Providers
+        isAdmin: { type: Boolean, default: false },
         venueName: { type: String },
         venueAddress: { type: String },
         city: { type: String },
@@ -29,14 +23,14 @@ const userSchema = new mongoose.Schema(
 );
 
 // Hash password before saving
-userSchema.pre("save", async function (next) {
+providerSchema.pre("save", async function (next) {
     if (!this.isModified("password")) return next();
     const salt = await bcrypt.genSalt(10);
     this.password = await bcrypt.hash(this.password, salt);
     next();
 });
 
-userSchema.methods.generateToken = async function () {
+providerSchema.methods.generateToken = async function () {
     try {
         return jwt.sign(
             {
@@ -54,8 +48,8 @@ userSchema.methods.generateToken = async function () {
 }
 
 // Compare password method
-userSchema.methods.matchPassword = async function (enteredPassword) {
+providerSchema.methods.matchPassword = async function (enteredPassword) {
     return await bcrypt.compare(enteredPassword, this.password);
 };
 
-module.exports = mongoose.model("User", userSchema);
+module.exports = mongoose.model("User", providerSchema);

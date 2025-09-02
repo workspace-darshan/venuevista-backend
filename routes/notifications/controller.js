@@ -1,5 +1,5 @@
 const sendEmail = require("../../utils/sendEmail");
-const User = require("../users/model"); // Ensure User model is imported
+const User = require("../providers/model"); // Ensure User model is imported
 
 const notifySuperAdmin = async (provider) => {
   try {

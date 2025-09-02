@@ -1,4 +1,4 @@
-const User = require("./model");
+const ProviderModel = require("./model");
 
 const registerUser = async (req, res) => {
     const {
@@ -31,7 +31,7 @@ const registerUser = async (req, res) => {
             .status(400)
             .json({ message: "All required fields must be filled" });
     }
-w
+    w
     if (password !== confirmPassword) {
         return res.status(400).json({ message: "Passwords do not match" });
     }
@@ -40,7 +40,7 @@ w
         return res.status(400).json({ message: "Invalid role type" });
     }
 
-    const userExists = await User.findOne({ email });
+    const userExists = await ProviderModel.findOne({ email });
     if (userExists)
         return res.status(400).json({ message: "User already exists" });
 
@@ -72,7 +72,7 @@ w
         };
     }
 
-    const user = await User.create(userData);
+    const user = await ProviderModel.create(userData);
 
     if (userType === "Provider") {
         notifySuperAdmin(user);
@@ -98,7 +98,7 @@ w
 
 const loginUser = async (req, res) => {
     const { email, password } = req.body;
-    const user = await User.findOne({ email });
+    const user = await ProviderModel.findOne({ email });
 
     if (user && (await user.matchPassword(password))) {
         if (user.userType === "Provider" && !user.isApproved) {
