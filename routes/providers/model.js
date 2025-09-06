@@ -5,23 +5,62 @@ const secretkey = require("../../config/constant").secretkey;
 
 const providerSchema = new mongoose.Schema(
     {
-        firstName: { type: String, required: true },
-        middleName: { type: String, required: true },
-        lastName: { type: String, required: true },
-        email: { type: String, unique: true, required: true },
-        phone: { type: String, unique: true, required: true },
-        password: { type: String, required: true },
+        // Personal Details
+        firstName: { type: String, required: true, trim: true },
+        middleName: { type: String, trim: true },
+        lastName: { type: String, required: true, trim: true },
+        email: {
+            type: String,
+            unique: true,
+            required: true,
+            lowercase: true
+        },
+        phone: {
+            type: String,
+            unique: true,
+            required: true
+        },
+        password: { type: String, required: true, minlength: 6 },
+
+        // Business Details
+        businessName: { type: String, required: true, trim: true },
+        businessType: {
+            type: String,
+            required: true,
+            enum: ['party-plot', 'banquet-hall', 'farmhouse', 'resort', 'hotel', 'other']
+        },
+        description: { type: String, maxlength: 500 },
+        website: { type: String },
+
+        // Status
         isApproved: { type: Boolean, default: false },
-        isAdmin: { type: Boolean, default: false },
-        venueName: { type: String },
-        venueAddress: { type: String },
-        city: { type: String },
-        state: { type: String },
-        pinCode: { type: String },
+        isVerified: { type: Boolean, default: false },
+        isActive: { type: Boolean, default: true },
+
+        // Documents
+        documents: [{
+            type: {
+                type: String,
+                enum: ['license', 'identity', 'other']
+            },
+            url: String,
+            isVerified: { type: Boolean, default: false }
+        }],
+
+        // Contact Info
+        address: {
+            street: String,
+            city: { type: String, required: true },
+            state: { type: String, required: true },
+            pincode: { type: String, required: true }
+        },
+
+        // Profile Images
+        profileImage: String,
+        coverImage: String
     },
     { timestamps: true }
 );
-
 // Hash password before saving
 providerSchema.pre("save", async function (next) {
     if (!this.isModified("password")) return next();
@@ -34,7 +73,7 @@ providerSchema.methods.generateToken = async function () {
     try {
         return jwt.sign(
             {
-                providerId: this._id.toString(),
+                userId: this._id.toString(),
                 email: this.email,
             },
             secretkey,
@@ -52,4 +91,4 @@ providerSchema.methods.matchPassword = async function (enteredPassword) {
     return await bcrypt.compare(enteredPassword, this.password);
 };
 
-module.exports = mongoose.model("Provider", providerSchema);
+module.exports = mongoose.model("User", providerSchema);
