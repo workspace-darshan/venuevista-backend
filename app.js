@@ -6,11 +6,9 @@ const helmet = require("helmet");
 var cors = require('cors')
 var cookieParser = require('cookie-parser');
 var logger = require('morgan');
-var indexRouter = require('./routes/index');
 const connectDB = require("./config/db");
 
 const apiRoutes = require("./routes");
-const { WEBSITE_URL } = require("./config/constant");
 
 var app = express();
 
@@ -32,7 +30,6 @@ app.use(logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
-app.use('/api', indexRouter);
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 app.use('/uploads', (req, res, next) => {
     res.header('Cross-Origin-Resource-Policy', 'cross-origin');
@@ -45,7 +42,7 @@ app.use('/uploads', (req, res, next) => {
 connectDB();
 
 // Routes
-// app.use("/api", apiRoutes);
+app.use("/api", apiRoutes);
 
 app.get("/", (req, res) => {
     res.send("Express API running");
