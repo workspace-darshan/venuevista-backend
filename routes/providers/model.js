@@ -1,7 +1,6 @@
 const mongoose = require("mongoose");
 const bcrypt = require("bcryptjs");
 const jwt = require('jsonwebtoken');
-const secretkey = require("../../config/constant").secretkey;
 
 const providerSchema = new mongoose.Schema(
     {
@@ -20,7 +19,7 @@ const providerSchema = new mongoose.Schema(
             unique: true,
             required: true
         },
-        password: { type: String, required: true, minlength: 6 },
+        password: { type: String, required: true},
 
         // Business Details
         businessName: { type: String, required: true, trim: true },
@@ -34,7 +33,7 @@ const providerSchema = new mongoose.Schema(
 
         // Status
         isApproved: { type: Boolean, default: false },
-        isVerified: { type: Boolean, default: false },
+        // isVerified: { type: Boolean, default: false },
         isActive: { type: Boolean, default: true },
 
         // Documents
@@ -73,10 +72,10 @@ providerSchema.methods.generateToken = async function () {
     try {
         return jwt.sign(
             {
-                userId: this._id.toString(),
+                providerId: this._id.toString(),
                 email: this.email,
             },
-            secretkey,
+              process.env.JWT_SECRET,
             {
                 expiresIn: "30d",
             }
