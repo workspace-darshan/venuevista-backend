@@ -22,23 +22,6 @@ const addonSchema = new mongoose.Schema(
         },
         price: { type: Number, required: true },
 
-        // Additional Details
-        details: {
-            // For food items
-            menuItems: [String], // ["dal", "rice", "roti", "sabji"]
-            servingStyle: { type: String, enum: ['buffet', 'served', 'both'] },
-
-            // For music/DJ
-            equipment: [String], // ["speakers", "microphone", "lights"]
-
-            // For decorations
-            decorationType: [String], // ["flowers", "balloons", "lights"]
-
-            // General
-            duration: String,
-            teamSize: Number
-        },
-
         // Status
         isActive: { type: Boolean, default: true }
     },
