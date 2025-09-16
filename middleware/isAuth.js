@@ -18,19 +18,21 @@ const isAuth = async (req, res, next) => {
 
     try {
       const decoded = jwt.verify(token, process.env.JWT_SECRET);
+      console.log("🚀 ~ isAuth ~ decoded:", decoded)
       if (decoded.providerId) {
         const provider = await ProvidersModel.findById(
           decoded.providerId
         ).select("email phone isActive isApproved");
+        console.log("provider", provider)
         if (!provider) {
           return handleError(res, "Token invalid. Provider not found", 401);
         }
         req.provider = {
           providerId: provider._id.toString(),
-          email: provider.email,
-          isAdmin: provider.isAdmin,
-          firstName: provider.firstName,
-          lastName: provider.lastName,
+          email: provider?.email,
+          isAdmin: provider?.isAdmin ?? false,
+          firstName: provider?.firstName,
+          lastName: provider?.lastName,
         };
       } else {
         const user = await UsersModel.findById(decoded.userId).select(
@@ -41,10 +43,10 @@ const isAuth = async (req, res, next) => {
         }
         req.user = {
           userId: user._id.toString(),
-          email: user.email,
-          isAdmin: user.isAdmin,
-          firstName: user.firstName,
-          lastName: user.lastName,
+          email: user?.email,
+          isAdmin: user?.isAdmin ?? false,
+          firstName: user?.firstName,
+          lastName: user?.lastName,
         };
       }
 
